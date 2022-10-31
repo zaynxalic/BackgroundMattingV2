@@ -7,3 +7,5 @@ pretraining/
 __pycache__/
 dataset/__pycache__/
 model/__pycache__/
+*.pt
+yolov5/
