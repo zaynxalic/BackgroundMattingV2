@@ -4,12 +4,14 @@ from torch.utils.data import Dataset
 from PIL import Image
 
 class ImagesDataset(Dataset):
-    def __init__(self, root, mode='RGB', transforms=None):
+    def __init__(self, root, mode='RGB', transforms=None, downsample=1):
         self.transforms = transforms
         self.mode = mode
         self.filenames = sorted([*glob.glob(os.path.join(root, '**', '*.jpg'), recursive=True),
                                  *glob.glob(os.path.join(root, '**', '*.png'), recursive=True)])
-
+        self.filenames = self.filenames[::downsample]
+        print(len(self.filenames))
+        
     def __len__(self):
         return len(self.filenames)
 

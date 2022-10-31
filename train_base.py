@@ -18,6 +18,10 @@ import argparse
 import kornia
 import torch
 import os
+#CUDA_VISIBLE_DEVICES=1 python train_base.py --dataset-name videomatte240k --model-backbone resnet50 --model-name mattingbase-resnet50-videomatte240k --model-pretrain-initialization "./pretraining/best_deeplabv3_resnet50_voc_os16.pth" --epoch-end 8 --batch-size 16
+# set only for cuda device number more than 1 and use the second device
+# if torch.cuda.device_count() > 1:
+#     os.environ['CUDA_VISIBLE_DEVICES'] = "1"
 import random
 
 from torch import nn
@@ -40,7 +44,7 @@ from model.utils import load_matched_state_dict
 
 # --------------- Arguments ---------------
 
-
+# CUDA_VISIBLE_DEVICES=1  python train_base.py --dataset-name videomatte240k --model-backbone resnet50 --model-name mattingbase-resnet50-videomatte240k --model-pretrain-initialization "./pretraining/best_deeplabv3_resnet50_voc_os16.pth" --epoch-end 1 --batch-size 32 --num-workers 4 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset-name', type=str, required=True, choices=DATA_PATH.keys())
@@ -68,12 +72,10 @@ args = parser.parse_args()
 
 
 def train():
-    
-    # Training DataLoader
     dataset_train = ZipDataset([
         ZipDataset([
-            ImagesDataset(DATA_PATH[args.dataset_name]['train']['pha'], mode='L'),
-            ImagesDataset(DATA_PATH[args.dataset_name]['train']['fgr'], mode='RGB'),
+            ImagesDataset(DATA_PATH[args.dataset_name]['train']['pha'], mode='L', downsample=2),
+            ImagesDataset(DATA_PATH[args.dataset_name]['train']['fgr'], mode='RGB', downsample=2),
         ], transforms=A.PairCompose([
             A.PairRandomAffineAndResize((512, 512), degrees=(-5, 5), translate=(0.1, 0.1), scale=(0.4, 1), shear=(-5, 5)),
             A.PairRandomHorizontalFlip(),
@@ -139,6 +141,7 @@ def train():
     
     # Run loop
     for epoch in range(args.epoch_start, args.epoch_end):
+        print('epoch:',epoch)
         for i, ((true_pha, true_fgr), true_bgr) in enumerate(tqdm(dataloader_train)):
             step = epoch * len(dataloader_train) + i
 

@@ -1,0 +1,9 @@
+data/
+*.pth
+*.tar
+log/
+checkpoint/
+pretraining/
+__pycache__/
+dataset/__pycache__/
+model/__pycache__/

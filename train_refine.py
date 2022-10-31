@@ -39,7 +39,7 @@ from dataset import ImagesDataset, ZipDataset, VideoDataset, SampleDataset
 from dataset import augmentation as A
 from model import MattingRefine
 from model.utils import load_matched_state_dict
-
+# CUDA_VISIBLE_DEVICES=1 python train_refine.py --dataset-name videomatte240k --model-backbone resnet50 --model-name mattingrefine-resnet50-videomatte240k --model-last-checkpoint "checkpoint/epoch-7.pth" --epoch-end 1 --model-refine-sample-pixels 80_000 --batch-size 4 --num-workers 4
 
 # --------------- Arguments ---------------
 
@@ -87,8 +87,8 @@ def train_worker(rank, addr, port):
     # Training DataLoader
     dataset_train = ZipDataset([
         ZipDataset([
-            ImagesDataset(DATA_PATH[args.dataset_name]['train']['pha'], mode='L'),
-            ImagesDataset(DATA_PATH[args.dataset_name]['train']['fgr'], mode='RGB'),
+            ImagesDataset(DATA_PATH[args.dataset_name]['train']['pha'], mode='L', downsample = 10),
+            ImagesDataset(DATA_PATH[args.dataset_name]['train']['fgr'], mode='RGB', downsample=10),
         ], transforms=A.PairCompose([
             A.PairRandomAffineAndResize((2048, 2048), degrees=(-5, 5), translate=(0.1, 0.1), scale=(0.3, 1), shear=(-5, 5)),
             A.PairRandomHorizontalFlip(),
